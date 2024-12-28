@@ -13,6 +13,10 @@ abstract interface class ExpeditionRemoteDataSource {
   Future<List<ImageModel>> fetchExpeditionImages({
     required int expeditionId,
   });
+
+  Future<String> storeExpedition({
+    required String expeditionIdentifier,
+  });
 }
 
 class ExpeditionRemoteDataSourceImpl implements ExpeditionRemoteDataSource {
@@ -79,5 +83,11 @@ class ExpeditionRemoteDataSourceImpl implements ExpeditionRemoteDataSource {
     } catch (e) {
       throw ServerException(e.toString());
     }
+  }
+
+  @override
+  Future<String> storeExpedition({required String expeditionIdentifier}) {
+    // TODO: implement storeExpedition
+    throw UnimplementedError();
   }
 }

@@ -43,9 +43,9 @@ class _BackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        Colors.lightBlueAccent.withOpacity(0.1),
-        Colors.blueAccent.withOpacity(0.1),
-        Colors.indigoAccent.withOpacity(0.1),
+        Colors.lightBlueAccent.withValues(alpha: 0.1),
+        Colors.blueAccent.withValues(alpha: 0.1),
+        Colors.indigoAccent.withValues(alpha: 0.1),
       ],
       center: const Alignment(0.2, 0.2),
     ).createShader(rect);

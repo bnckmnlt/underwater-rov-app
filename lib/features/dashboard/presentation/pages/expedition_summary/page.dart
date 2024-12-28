@@ -40,14 +40,14 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
 
   @override
   void initState() {
-    super.initState();
     _supabaseClient = Supabase.instance.client;
-
     context.read<ExpeditionBloc>().add(
           ExpeditionFetchSingleExpedition(
             expeditionId: widget.expeditionId as int,
           ),
         );
+
+    super.initState();
   }
 
   @override
@@ -73,48 +73,54 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
             extendBody: true,
             extendBodyBehindAppBar: true,
             appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0.0,
-              scrolledUnderElevation: 0,
-              leadingWidth: 76,
-              leading: TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  context
-                      .read<ExpeditionBloc>()
-                      .add(ExpeditionFetchAllExpedition());
-                },
-                style: ButtonStyle(
-                  splashFactory: NoSplash.splashFactory,
-                  foregroundColor: WidgetStatePropertyAll(
-                    Theme.of(context).colorScheme.onSurface.withOpacity(0.75),
+                backgroundColor: Colors.transparent,
+                elevation: 0.0,
+                scrolledUnderElevation: 0,
+                leadingWidth: 76,
+                leading: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context
+                        .read<ExpeditionBloc>()
+                        .add(ExpeditionFetchAllExpedition());
+                  },
+                  style: ButtonStyle(
+                    splashFactory: NoSplash.splashFactory,
+                    foregroundColor: WidgetStatePropertyAll(
+                      Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.75),
+                    ),
                   ),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(6.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
-                    border: Border.all(
+                  child: Container(
+                    padding: const EdgeInsets.all(6.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outline
+                            .withValues(alpha: 0.75),
+                      ),
+                      color: Colors.blueGrey.withValues(alpha: 0.2),
+                    ),
+                    child: Icon(
+                      FluentIcons.arrow_left_24_filled,
                       color: Theme.of(context)
                           .colorScheme
-                          .outline
-                          .withOpacity(0.3),
+                          .onSurface
+                          .withValues(alpha: 0.75),
+                      size: 24.0,
                     ),
-                    color: Colors.blueGrey.withOpacity(0.2),
                   ),
-                  child: const Icon(
-                    FluentIcons.arrow_left_24_filled,
-                    size: 24.0,
-                  ),
-                ),
-              ),
-            ),
+                )),
             body: AppBackground(
               child: BlocBuilder<ExpeditionBloc, ExpeditionState>(
                 builder: (context, state) {
                   if (state is ExpeditionLoading) {
                     return SizedBox(
-                        height: deviceHeight * 0.5,
+                        height: deviceHeight,
                         child: Center(
                             child: LoadingAnimationWidget.discreteCircle(
                           color: Colors.blueAccent,
@@ -207,7 +213,8 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: "Manila Expedition",
+                                      text:
+                                          state.expedition.expeditionIdentifier,
                                       style: const TextStyle(
                                         fontFamily: "Satoshi",
                                         fontSize: 24,
@@ -247,11 +254,11 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                       ? Theme.of(context)
                                           .colorScheme
                                           .surfaceContainerLow
-                                          .withOpacity(0.5)
+                                          .withValues(alpha: 0.5)
                                       : Theme.of(context)
                                           .colorScheme
                                           .surfaceContainer
-                                          .withOpacity(0.5),
+                                          .withValues(alpha: 0.5),
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
                                 padding:
@@ -299,7 +306,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                               : Theme.of(context)
                                                   .colorScheme
                                                   .outline
-                                                  .withOpacity(0.3),
+                                                  .withValues(alpha: 0.3),
                                         );
                                       }
                                     },
@@ -320,11 +327,11 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                       ? Theme.of(context)
                                           .colorScheme
                                           .surfaceContainerLow
-                                          .withOpacity(0.5)
+                                          .withValues(alpha: 0.5)
                                       : Theme.of(context)
                                           .colorScheme
                                           .surfaceContainer
-                                          .withOpacity(0.5),
+                                          .withValues(alpha: 0.5),
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
                                 padding:
@@ -355,7 +362,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                                 decoration: BoxDecoration(
                                                   color: Colors
                                                       .lightBlueAccent.shade100
-                                                      .withOpacity(0.2),
+                                                      .withValues(alpha: 0.2),
                                                   border: Border.all(
                                                     color: Colors
                                                         .lightBlueAccent
@@ -408,7 +415,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                           : Theme.of(context)
                                               .colorScheme
                                               .outline
-                                              .withOpacity(0.3),
+                                              .withValues(alpha: 0.3),
                                     ),
 
                                     // Uptime Stats
@@ -431,7 +438,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                                   color: Theme.of(context)
                                                       .colorScheme
                                                       .onSurface
-                                                      .withOpacity(0.75),
+                                                      .withValues(alpha: 0.75),
                                                 ),
                                               ),
                                               const SizedBox(height: 2.0),
@@ -455,7 +462,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                                   color: Theme.of(context)
                                                       .colorScheme
                                                       .onSurface
-                                                      .withOpacity(0.75),
+                                                      .withValues(alpha: 0.75),
                                                 ),
                                               ),
                                               const SizedBox(height: 2.0),
@@ -488,7 +495,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                                 : Theme.of(context)
                                                     .colorScheme
                                                     .outline
-                                                    .withOpacity(0.3),
+                                                    .withValues(alpha: 0.3),
                                           ),
                                           bottom: BorderSide(
                                             color: MediaQuery.of(context)
@@ -500,7 +507,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                                 : Theme.of(context)
                                                     .colorScheme
                                                     .outline
-                                                    .withOpacity(0.3),
+                                                    .withValues(alpha: 0.3),
                                           ),
                                         ),
                                       ),
@@ -549,7 +556,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                               color: Theme.of(context)
                                                   .colorScheme
                                                   .onSurface
-                                                  .withOpacity(0.75),
+                                                  .withValues(alpha: 0.75),
                                             ),
                                           ),
                                           const SizedBox(height: 16),
@@ -581,12 +588,12 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                       ? Theme.of(context)
                                           .colorScheme
                                           .surfaceContainerLow
-                                          .withOpacity(0.5)
+                                          .withValues(alpha: 0.5)
                                       : Theme.of(context)
                                           .colorScheme
                                           .surfaceContainer
-                                          .withOpacity(0.5)
-                                          .withOpacity(0.5),
+                                          .withValues(alpha: 0.5)
+                                          .withValues(alpha: 0.5),
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
                                 padding:
@@ -617,7 +624,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                   if (state is ExpeditionFailure) {
                     return ErrorDisplay(
                         errorMessage:
-                            "Failed to load logs\nError: ${state.error.toString()}");
+                            "Failed to load information\nError: ${state.error.toString()}");
                   }
 
                   return SizedBox(
@@ -644,7 +651,7 @@ Widget _buildDivider(BuildContext context) {
       thickness: 1,
       color: MediaQuery.of(context).platformBrightness == Brightness.dark
           ? Theme.of(context).colorScheme.surfaceContainer
-          : Theme.of(context).colorScheme.outline.withOpacity(0.3),
+          : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
     ),
   );
 }

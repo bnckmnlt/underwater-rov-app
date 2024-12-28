@@ -6,6 +6,7 @@ class GeneralDialog extends StatelessWidget {
   final String description;
   final String confirmButtonLabel;
   final VoidCallback approvedFunction;
+  final Widget widget;
 
   const GeneralDialog({
     super.key,
@@ -13,6 +14,7 @@ class GeneralDialog extends StatelessWidget {
     required this.description,
     required this.confirmButtonLabel,
     required this.approvedFunction,
+    this.widget = const SizedBox(),
   });
 
   @override
@@ -24,7 +26,7 @@ class GeneralDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
           width: 1,
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
         ),
       ),
       child: SingleChildScrollView(
@@ -74,13 +76,17 @@ class GeneralDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color:
-                        Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.5),
                     width: 1,
                   ),
                   bottom: BorderSide(
-                    color:
-                        Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),
@@ -102,6 +108,8 @@ class GeneralDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(description),
+                    const SizedBox(height: 12),
+                    widget
                   ],
                 ),
               ),

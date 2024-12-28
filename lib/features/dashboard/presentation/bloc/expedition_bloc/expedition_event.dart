@@ -20,3 +20,11 @@ final class ExpeditionFetchSingleExpedition extends ExpeditionEvent {
     required this.expeditionId,
   });
 }
+
+final class ExpeditionStoreExpedition extends ExpeditionEvent {
+  final String expeditionIdentifier;
+
+  ExpeditionStoreExpedition(
+    this.expeditionIdentifier,
+  );
+}

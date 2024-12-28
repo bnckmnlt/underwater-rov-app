@@ -27,6 +27,12 @@ final class ExpeditionRecordSuccess extends ExpeditionState {
   const ExpeditionRecordSuccess(this.expedition);
 }
 
+final class ExpeditionStoreSuccess extends ExpeditionState {
+  final String message;
+
+  const ExpeditionStoreSuccess(this.message);
+}
+
 final class ExpeditionFailure extends ExpeditionState {
   final String error;
 

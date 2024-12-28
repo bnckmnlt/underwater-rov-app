@@ -108,7 +108,7 @@ class _DeviceInformationTileState extends State<DeviceInformationTile> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.75),
+                                .withValues(alpha: 0.75),
                             fontSize: 16,
                             letterSpacing: 0.025,
                           ),
@@ -155,7 +155,7 @@ class _DeviceInformationTileState extends State<DeviceInformationTile> {
                       color: Theme.of(context)
                           .colorScheme
                           .outline
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                     )
                   : const SizedBox(height: 4),
             ],

@@ -13,4 +13,8 @@ abstract interface class ExpeditionRepository {
   Future<Either<Failure, List<ImageRecord>>> fetchExpeditionImages({
     required int expeditionId,
   });
+
+  Future<Either<Failure, String>> storeExpedition({
+    required String expeditionIdentifier,
+  });
 }

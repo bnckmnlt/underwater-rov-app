@@ -4,6 +4,7 @@ import 'package:embedded_rov_v2/features/dashboard/domain/entities/image.dart';
 import 'package:embedded_rov_v2/features/dashboard/domain/usecases/fetch_all_expedition.dart';
 import 'package:embedded_rov_v2/features/dashboard/domain/usecases/fetch_expedition_images.dart';
 import 'package:embedded_rov_v2/features/dashboard/domain/usecases/fetch_single_expedition.dart';
+import 'package:embedded_rov_v2/features/dashboard/domain/usecases/store_expedition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,19 +15,23 @@ class ExpeditionBloc extends Bloc<ExpeditionEvent, ExpeditionState> {
   final FetchAllExpedition _fetchAllExpedition;
   final FetchExpeditionImages _fetchExpeditionImages;
   final FetchSingleExpedition _fetchSingleExpedition;
+  final StoreExpedition _storeExpedition;
 
   ExpeditionBloc({
     required FetchAllExpedition fetchAllExpedition,
     required FetchExpeditionImages fetchExpeditionImages,
     required FetchSingleExpedition fetchSingleExpedition,
+    required StoreExpedition storeExpedition,
   })  : _fetchAllExpedition = fetchAllExpedition,
         _fetchExpeditionImages = fetchExpeditionImages,
         _fetchSingleExpedition = fetchSingleExpedition,
+        _storeExpedition = storeExpedition,
         super(ExpeditionInitial()) {
     on<ExpeditionEvent>((event, emit) => emit(ExpeditionLoading()));
     on<ExpeditionFetchAllExpedition>(_onFetchAllExpedition);
     on<ExpeditionFetchExpeditionImages>(_onFetchExpeditionImages);
     on<ExpeditionFetchSingleExpedition>(_onFetchSingleExpedition);
+    on<ExpeditionStoreExpedition>(_onStoreExpedition);
   }
 
   void _onFetchAllExpedition(
@@ -76,6 +81,18 @@ class ExpeditionBloc extends Bloc<ExpeditionEvent, ExpeditionState> {
     res.fold(
       (l) => emit(ExpeditionFailure(l.message)),
       (r) => emit(ExpeditionRecordSuccess(r)),
+    );
+  }
+
+  void _onStoreExpedition(
+      ExpeditionStoreExpedition event, Emitter<ExpeditionState> emit) async {
+    final res = await _storeExpedition(
+      StoreExpeditionParams(event.expeditionIdentifier),
+    );
+
+    res.fold(
+      (l) => emit(ExpeditionFailure(l.message)),
+      (r) => emit(ExpeditionStoreSuccess(r)),
     );
   }
 }

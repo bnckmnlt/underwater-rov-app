@@ -53,13 +53,19 @@ class _LayoutState extends State<LayoutPage> {
                         )),
                       ),
                       showSelectedIcon: false,
-                      segments: const [
+                      segments: [
                         ButtonSegment<Pages>(
                           value: Pages.device,
-                          label: Text(''),
+                          label: const Text(''),
                           icon: Icon(
                             FluentIcons.bot_24_filled,
                             size: 28,
+                            color: currentPage == Pages.device
+                                ? Colors.lightBlueAccent
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withValues(alpha: 1),
                           ),
                         ),
                         ButtonSegment<Pages>(
@@ -68,6 +74,12 @@ class _LayoutState extends State<LayoutPage> {
                           icon: Icon(
                             FluentIcons.map_24_filled,
                             size: 28,
+                            color: currentPage == Pages.history
+                                ? Colors.lightBlueAccent
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withValues(alpha: 1),
                           ),
                         ),
                       ],

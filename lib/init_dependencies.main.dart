@@ -52,10 +52,16 @@ void _initExpedition() {
       ),
     )
     ..registerFactory(
+      () => StoreExpedition(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
       () => ExpeditionBloc(
         fetchAllExpedition: serviceLocator(),
         fetchExpeditionImages: serviceLocator(),
         fetchSingleExpedition: serviceLocator(),
+        storeExpedition: serviceLocator(),
       ),
     );
 }

@@ -51,4 +51,12 @@ class ExpeditionRepositoryImpl implements ExpeditionRepository {
       return left(Failure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> storeExpedition({
+    required String expeditionIdentifier,
+  }) {
+    // TODO: implement storeExpedition
+    throw UnimplementedError();
+  }
 }

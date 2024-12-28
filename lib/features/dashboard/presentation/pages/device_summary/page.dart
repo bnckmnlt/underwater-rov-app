@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:embedded_rov_v2/core/common/dialog.dart';
 import 'package:embedded_rov_v2/core/common/glassmorphism.dart';
 import 'package:embedded_rov_v2/features/dashboard/presentation/bloc/expedition_bloc/expedition_bloc.dart';
 import 'package:embedded_rov_v2/features/dashboard/presentation/pages/device_stream/page.dart';
+import 'package:embedded_rov_v2/features/dashboard/presentation/pages/end_expedition_summary/page.dart';
 import 'package:embedded_rov_v2/features/dashboard/presentation/widgets/AppBackground.dart';
 import 'package:embedded_rov_v2/features/dashboard/presentation/widgets/DeviceInformationTile.dart';
 import 'package:embedded_rov_v2/mqtt_service.dart';
@@ -23,11 +26,15 @@ class DeviceSummary extends StatefulWidget {
 
 class _DeviceSummaryState extends State<DeviceSummary> {
   late MqttService _mqttService;
+  final TextEditingController _expeditionIdentifierController =
+      TextEditingController();
 
+  late StreamSubscription<int> _currentExpeditionStream;
   late Stream<bool> _expeditionStatusStream;
   late Stream<bool> _deviceStatusStream;
   late Stream<Map<String, String>> _deviceInfoStream;
 
+  int _currentExpedition = 1;
   bool _expeditionIsActive = false;
   bool _deviceIsActive = false;
   late Map<String, String> _deviceInfo = {};
@@ -40,6 +47,14 @@ class _DeviceSummaryState extends State<DeviceSummary> {
 
     _mqttService = GetIt.I<MqttService>();
     _mqttService.connect();
+
+    _currentExpeditionStream = _mqttService.currentExpedition.listen((exp) {
+      if (mounted) {
+        setState(() {
+          _currentExpedition = exp;
+        });
+      }
+    });
 
     _expeditionStatusStream = _mqttService.expeditionStatusStream;
     _expeditionStatusStream.listen((status) {
@@ -66,6 +81,13 @@ class _DeviceSummaryState extends State<DeviceSummary> {
   }
 
   @override
+  void dispose() {
+    _expeditionIdentifierController.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, constraints) {
@@ -83,9 +105,6 @@ class _DeviceSummaryState extends State<DeviceSummary> {
             leading: TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                context
-                    .read<ExpeditionBloc>()
-                    .add(ExpeditionFetchAllExpedition());
               },
               style: ButtonStyle(
                 splashFactory: NoSplash.splashFactory,
@@ -113,7 +132,7 @@ class _DeviceSummaryState extends State<DeviceSummary> {
                   color: Theme.of(context)
                       .colorScheme
                       .onSurface
-                      .withValues(alpha: 0.5),
+                      .withValues(alpha: 0.75),
                   size: 24.0,
                 ),
               ),
@@ -169,6 +188,8 @@ class _DeviceSummaryState extends State<DeviceSummary> {
                                 _expeditionIsActive,
                                 _deviceIsActive,
                                 _mqttService,
+                                _deviceInfo,
+                                _expeditionIdentifierController,
                               ),
                             ],
                           ),
@@ -177,10 +198,17 @@ class _DeviceSummaryState extends State<DeviceSummary> {
                     ),
 
                     /** Device Information Card **/
+
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 56, 16, 24),
                       child: Column(
                         children: [
+                          // Text(
+                          //   _currentExpedition.toString(),
+                          //   style: TextStyle(
+                          //     fontSize: 24,
+                          //   ),
+                          // ),
                           Glassmorphism(
                             blur: 64,
                             opacity: 0.2,
@@ -200,7 +228,6 @@ class _DeviceSummaryState extends State<DeviceSummary> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          CircularProgressIndicator(),
                           _deviceIsActive
                               ? Glassmorphism(
                                   blur: 64,
@@ -273,12 +300,21 @@ Widget _mainButtonComponent(
   bool expeditionActive,
   bool deviceisActive,
   MqttService mqttService,
+  Map<String, String> deviceInfo,
+  TextEditingController expeditionIdentifierController,
 ) {
+  final formKey = GlobalKey<FormState>();
+
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
       ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EndExpeditionSummary()),
+          );
+        },
         style: _mainButtonStyle(
           context,
           true,
@@ -318,25 +354,69 @@ Widget _mainButtonComponent(
       ),
       ElevatedButton(
         onPressed: () {
+          if (expeditionActive) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (builder) => DeviceStream(
+                  mqttService: mqttService,
+                  deviceInfo: deviceInfo,
+                ),
+              ),
+            );
+            return;
+          }
+
           showDialog(
             context: context,
             builder: (BuildContext context) {
               return GeneralDialog(
-                  title: 'Start Expedition?',
-                  description:
-                      'Do you want to start an expedition with this ROV?',
-                  confirmButtonLabel: 'Start Expedition',
-                  approvedFunction: () => {
-                        Navigator.pop(context),
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (builder) => DeviceStream(
-                              mqttService: mqttService,
-                            ),
-                          ),
-                        ),
-                      });
+                title: 'Add Expedition Identifier',
+                description: 'Enter a unique expedition name',
+                confirmButtonLabel: 'Continue',
+                widget: Form(
+                  key: formKey,
+                  child: TextFormField(
+                    controller: expeditionIdentifierController,
+                    validator: (value) {
+                      if (value!.isEmpty || value.length <= 8) {
+                        return "Expedition name is invalid";
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                approvedFunction: () {
+                  if (formKey.currentState!.validate()) {
+                    Navigator.pop(context);
+
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return GeneralDialog(
+                          title:
+                              'Start ${expeditionIdentifierController.text}?',
+                          description:
+                              'Do you want to start an expedition with this ROV?',
+                          confirmButtonLabel: 'Start Expedition',
+                          approvedFunction: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (builder) => DeviceStream(
+                                  mqttService: mqttService,
+                                  deviceInfo: deviceInfo,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }
+                },
+              );
             },
           );
         },

@@ -6,6 +6,7 @@ import 'package:embedded_rov_v2/features/dashboard/domain/repositories/expeditio
 import 'package:embedded_rov_v2/features/dashboard/domain/usecases/fetch_all_expedition.dart';
 import 'package:embedded_rov_v2/features/dashboard/domain/usecases/fetch_expedition_images.dart';
 import 'package:embedded_rov_v2/features/dashboard/domain/usecases/fetch_single_expedition.dart';
+import 'package:embedded_rov_v2/features/dashboard/domain/usecases/store_expedition.dart';
 import 'package:embedded_rov_v2/features/dashboard/presentation/bloc/expedition_bloc/expedition_bloc.dart';
 import 'package:embedded_rov_v2/mqtt_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

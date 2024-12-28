@@ -43,8 +43,10 @@ class _GallerySectionState extends State<GallerySection> {
             Text(
               widget.itemList.length.toString(),
               style: TextStyle(
-                color:
-                    Theme.of(context).colorScheme.onSurface.withOpacity(0.75),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.75),
                 fontSize: 16,
               ),
             ),

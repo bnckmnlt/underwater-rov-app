@@ -25,7 +25,7 @@ class Glassmorphism extends StatelessWidget {
             color: Theme.of(context)
                 .colorScheme
                 .surfaceContainerHighest
-                .withOpacity(opacity),
+                .withValues(alpha: opacity),
             borderRadius: const BorderRadius.all(
               Radius.circular(8),
             ),

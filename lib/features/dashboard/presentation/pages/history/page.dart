@@ -155,6 +155,8 @@ class _HistoryPageState extends State<HistoryPage> {
                                       child: ExpeditionTile(
                                         expeditionId: expedition.id,
                                         status: expedition.status,
+                                        identifier:
+                                            expedition.expeditionIdentifier,
                                         createdAt: expedition.createdAt,
                                         updatedAt: expedition.updatedAt,
                                       ),

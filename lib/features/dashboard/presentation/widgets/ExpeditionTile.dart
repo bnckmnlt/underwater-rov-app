@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 class ExpeditionTile extends StatefulWidget {
   final int expeditionId;
   final ExpeditionStatus status;
+  final String identifier;
   final String createdAt;
   final String updatedAt;
 
@@ -13,6 +14,7 @@ class ExpeditionTile extends StatefulWidget {
     super.key,
     required this.expeditionId,
     required this.status,
+    required this.identifier,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -44,8 +46,8 @@ class _ExpeditionTileState extends State<ExpeditionTile> {
 
     String formattedCreatedDate = formatDate(widget.createdAt, 'yyyy\nMMM dd');
     String formattedCreatedTime = formatDate(widget.createdAt, 'HH:mm');
-    String formattedUpdatedDate = formatDate(widget.createdAt, 'yyyy\nMMM dd');
-    String formattedUpdatedTime = formatDate(widget.createdAt, 'HH:mm');
+    String formattedUpdatedDate = formatDate(widget.updatedAt, 'yyyy\nMMM dd');
+    String formattedUpdatedTime = formatDate(widget.updatedAt, 'HH:mm');
 
     return ClipPath(
       clipper: CardClipper(),
@@ -84,10 +86,10 @@ class _ExpeditionTileState extends State<ExpeditionTile> {
               ),
               const SizedBox(height: 10),
               // Title Text
-              const Align(
+              Align(
                 child: Text(
-                  "Manila Expedition",
-                  style: TextStyle(
+                  widget.identifier,
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.025,
@@ -172,7 +174,7 @@ class _ExpeditionTileState extends State<ExpeditionTile> {
                             size: 16,
                           ),
                           const SizedBox(width: 4),
-                          Text(formattedCreatedTime),
+                          Text(formattedUpdatedTime),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -180,7 +182,7 @@ class _ExpeditionTileState extends State<ExpeditionTile> {
                         TextSpan(
                           children: [
                             TextSpan(
-                              text: "${formattedUpdatedTime.split('\n')[0]}\n",
+                              text: "${formattedUpdatedDate.split('\n')[0]}\n",
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
@@ -280,7 +282,7 @@ Widget expeditionStatusChip(ExpeditionStatus status) {
   }
 
   return Chip(
-    backgroundColor: backgroundColor.withOpacity(0.3),
+    backgroundColor: backgroundColor.withValues(alpha: 0.3),
     side: BorderSide(color: backgroundColor),
     label: Text(
       label,

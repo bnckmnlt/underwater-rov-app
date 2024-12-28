@@ -78,7 +78,7 @@ class _DevicePageState extends State<DevicePage> {
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.5),
+                          .withValues(alpha: 0.5),
                       fontSize: 16,
                       height: 1.5,
                     ),
@@ -124,7 +124,7 @@ class _DevicePageState extends State<DevicePage> {
                               color: Theme.of(context)
                                   .colorScheme
                                   .onSurface
-                                  .withOpacity(0.75),
+                                  .withValues(alpha: 0.75),
                               letterSpacing: 0.025,
                             ),
                           )
@@ -194,9 +194,7 @@ class _DevicePageState extends State<DevicePage> {
                                           size: 8,
                                           color: _deviceisActive
                                               ? Colors.greenAccent
-                                              : Theme.of(context)
-                                                  .colorScheme
-                                                  .error,
+                                              : Colors.redAccent,
                                         ),
                                         const SizedBox(width: 6),
                                         Text(
@@ -206,9 +204,7 @@ class _DevicePageState extends State<DevicePage> {
                                           style: TextStyle(
                                             color: _deviceisActive
                                                 ? Colors.greenAccent
-                                                : Theme.of(context)
-                                                    .colorScheme
-                                                    .error,
+                                                : Colors.redAccent,
                                             fontWeight: FontWeight.w500,
                                             letterSpacing: 0.025,
                                           ),
@@ -230,7 +226,7 @@ class _DevicePageState extends State<DevicePage> {
                                     decoration: BoxDecoration(
                                       color: _expeditionActive
                                           ? Colors.greenAccent
-                                          : Theme.of(context).colorScheme.error,
+                                          : Colors.redAccent,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                   ),
@@ -241,7 +237,7 @@ class _DevicePageState extends State<DevicePage> {
                                       color: Theme.of(context)
                                           .colorScheme
                                           .onSurface
-                                          .withOpacity(0.75),
+                                          .withValues(alpha: 0.75),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),

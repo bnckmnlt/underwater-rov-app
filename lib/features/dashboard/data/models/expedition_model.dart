@@ -5,6 +5,7 @@ class ExpeditionModel extends ExpeditionRecord {
   ExpeditionModel({
     required super.id,
     required super.status,
+    required super.expeditionIdentifier,
     required super.createdAt,
     required super.updatedAt,
     required super.imageList,
@@ -14,6 +15,7 @@ class ExpeditionModel extends ExpeditionRecord {
     return ExpeditionModel(
       id: json['id'] as int,
       status: stringToExpeditionStatus(json['status'] as String),
+      expeditionIdentifier: json["expedition_identifier"] as String,
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
       imageList: json['image'] != null

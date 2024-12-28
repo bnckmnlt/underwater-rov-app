@@ -5,6 +5,7 @@ enum ExpeditionStatus { active, completed, error }
 class ExpeditionRecord {
   final int id;
   final ExpeditionStatus status;
+  final String expeditionIdentifier;
   final String createdAt;
   final String updatedAt;
   final List<ImageRecord> imageList;
@@ -12,6 +13,7 @@ class ExpeditionRecord {
   ExpeditionRecord({
     required this.id,
     required this.status,
+    required this.expeditionIdentifier,
     required this.createdAt,
     required this.updatedAt,
     required this.imageList,
