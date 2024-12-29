@@ -26,6 +26,7 @@ sealed class AppTheme {
     appBarElevation: 4.0,
     bottomAppBarElevation: 8.0,
     tabBarStyle: FlexTabBarStyle.forAppBar,
+    tooltipsMatchBackground: true,
     subThemesData: const FlexSubThemesData(
       interactionEffects: true,
       tintedDisabledControls: true,
@@ -118,6 +119,7 @@ sealed class AppTheme {
     appBarElevation: 4.0,
     bottomAppBarElevation: 8.0,
     tabBarStyle: FlexTabBarStyle.forAppBar,
+    tooltipsMatchBackground: true,
     subThemesData: const FlexSubThemesData(
       interactionEffects: true,
       tintedDisabledControls: true,

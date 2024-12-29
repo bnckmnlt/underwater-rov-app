@@ -68,32 +68,52 @@ class _DeviceStreamState extends State<DeviceStream> {
     _rovEventSubscription = mqttService.rovEventStream.listen((event) {
       if (mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (event["event"] == "log") {
-            toastification.show(
-              context: context,
-              type: ToastificationType.success,
-              style: ToastificationStyle.flat,
-              title: Text(event["title"].toString()),
-              description: Text(event["response"].toString()),
-              alignment: Alignment.topRight,
-              autoCloseDuration: const Duration(seconds: 4),
-            );
-          } else if (event["event"] == "error") {
-            toastification.show(
-              context: context,
-              type: ToastificationType.error,
-              style: ToastificationStyle.flatColored,
-              title: Text(event["title"].toString()),
-              description: Text(event["response"].toString()),
-              alignment: Alignment.topRight,
-              autoCloseDuration: const Duration(seconds: 4),
-            );
-          }
+          showToast(
+            title: event["title"].toString(),
+            description: event["response"].toString(),
+            isError: event["event"] == "log" ? true : false,
+          );
         });
       }
     });
 
     super.initState();
+  }
+
+  void showToast({
+    required String title,
+    required String description,
+    required bool isError,
+  }) {
+    toastification.show(
+      context: context,
+      type: isError ? ToastificationType.error : ToastificationType.success,
+      style: ToastificationStyle.flat,
+      title: Text(title),
+      description: Text(description),
+      alignment: Alignment.topRight,
+      autoCloseDuration: const Duration(seconds: 4),
+      animationBuilder: (
+        context,
+        animation,
+        alignment,
+        child,
+      ) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
+      borderSide: BorderSide(
+        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+        width: 1,
+      ),
+      backgroundColor:
+          Theme.of(context).colorScheme.surfaceContainer.withAlpha(248),
+      borderRadius: BorderRadius.circular(4.0),
+      showProgressBar: true,
+      dragToClose: true,
+    );
   }
 
   @override

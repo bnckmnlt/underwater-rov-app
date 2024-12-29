@@ -17,7 +17,12 @@ import 'package:lottie/lottie.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EndExpeditionSummary extends StatefulWidget {
-  const EndExpeditionSummary({super.key});
+  final int expeditionId;
+
+  const EndExpeditionSummary({
+    super.key,
+    required this.expeditionId,
+  });
 
   @override
   State<EndExpeditionSummary> createState() => _EndExpeditionSummaryState();
@@ -36,7 +41,7 @@ class _EndExpeditionSummaryState extends State<EndExpeditionSummary>
 
     context.read<ExpeditionBloc>().add(
           ExpeditionFetchSingleExpedition(
-            expeditionId: 7,
+            expeditionId: widget.expeditionId,
           ),
         );
 
@@ -442,7 +447,7 @@ List<Map<String, dynamic>> _maptoList(
           "${expedition.imageList.where((image) => image.imageType == ImageEventType.objectDetection).map((image) => image.objectClassName).toSet().length} classes",
     },
     {
-      'label': 'Uptime',
+      'label': 'Device Uptime',
       'value': "6h 15 min",
     },
     {

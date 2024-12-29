@@ -202,9 +202,10 @@ class _DevicePageState extends State<DevicePage> {
                                               ? "Active"
                                               : "Not active",
                                           style: TextStyle(
-                                            color: _deviceisActive
-                                                ? Colors.greenAccent
-                                                : Colors.redAccent,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withValues(alpha: 0.75),
                                             fontWeight: FontWeight.w500,
                                             letterSpacing: 0.025,
                                           ),
@@ -232,7 +233,7 @@ class _DevicePageState extends State<DevicePage> {
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    _expeditionActive ? "E" : "F",
+                                    _expeditionActive ? "EM" : "SM",
                                     style: TextStyle(
                                       color: Theme.of(context)
                                           .colorScheme

@@ -1,22 +1,31 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
-class GeneralDialog extends StatelessWidget {
-  final String title;
+class GeneralDialog extends StatefulWidget {
+  final String? title;
   final String description;
-  final String confirmButtonLabel;
-  final VoidCallback approvedFunction;
+  final String? confirmButtonLabel;
+  final VoidCallback? approvedFunction;
   final Widget widget;
+  final bool isDismissable;
+  final bool withTitle;
 
   const GeneralDialog({
     super.key,
-    required this.title,
+    this.title,
     required this.description,
-    required this.confirmButtonLabel,
-    required this.approvedFunction,
+    this.confirmButtonLabel,
+    this.approvedFunction,
     this.widget = const SizedBox(),
+    this.isDismissable = true,
+    this.withTitle = true,
   });
 
+  @override
+  State<GeneralDialog> createState() => _GeneralDialogState();
+}
+
+class _GeneralDialogState extends State<GeneralDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -98,70 +107,78 @@ class GeneralDialog extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.025,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(description),
+                    widget.withTitle
+                        ? Column(
+                            children: [
+                              Text(
+                                widget.title ?? "",
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.025,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          )
+                        : const SizedBox(),
+                    Text(widget.description),
                     const SizedBox(height: 12),
-                    widget
+                    widget.widget
                   ],
                 ),
               ),
             ),
             /** Footer Buttons **/
-            Container(
-              width: MediaQuery.of(context).size.width,
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    style: const ButtonStyle(
-                      splashFactory: NoSplash.splashFactory,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      'Dismiss',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.025,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: approvedFunction,
-                    style: const ButtonStyle(
-                      splashFactory: NoSplash.splashFactory,
-                      shape: WidgetStatePropertyAll(
-                        StadiumBorder(),
-                      ),
-                      padding: WidgetStatePropertyAll(
-                        EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 32,
+            widget.isDismissable
+                ? Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          style: const ButtonStyle(
+                            splashFactory: NoSplash.splashFactory,
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text(
+                            'Dismiss',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.025,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        ElevatedButton(
+                          onPressed: widget.approvedFunction,
+                          style: const ButtonStyle(
+                            splashFactory: NoSplash.splashFactory,
+                            shape: WidgetStatePropertyAll(
+                              StadiumBorder(),
+                            ),
+                            padding: WidgetStatePropertyAll(
+                              EdgeInsets.symmetric(
+                                vertical: 6,
+                                horizontal: 32,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            widget.confirmButtonLabel ?? "",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      confirmButtonLabel,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
+                  )
+                : const SizedBox()
           ],
         ),
       ),
