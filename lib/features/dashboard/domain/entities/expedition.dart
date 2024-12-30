@@ -6,6 +6,8 @@ class ExpeditionRecord {
   final int id;
   final ExpeditionStatus status;
   final String expeditionIdentifier;
+  final String deviceUptime;
+  final String maxPressure;
   final String createdAt;
   final String updatedAt;
   final List<ImageRecord> imageList;
@@ -14,6 +16,8 @@ class ExpeditionRecord {
     required this.id,
     required this.status,
     required this.expeditionIdentifier,
+    required this.deviceUptime,
+    required this.maxPressure,
     required this.createdAt,
     required this.updatedAt,
     required this.imageList,

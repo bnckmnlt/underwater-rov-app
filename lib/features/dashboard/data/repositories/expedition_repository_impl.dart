@@ -55,8 +55,30 @@ class ExpeditionRepositoryImpl implements ExpeditionRepository {
   @override
   Future<Either<Failure, String>> storeExpedition({
     required String expeditionIdentifier,
-  }) {
-    // TODO: implement storeExpedition
-    throw UnimplementedError();
+  }) async {
+    try {
+      final expeditionResponse = await remoteDataSource.storeExpedition(
+        expeditionIdentifier: expeditionIdentifier,
+      );
+
+      return right(expeditionResponse);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> endExpedition({
+    required int expeditionId,
+  }) async {
+    try {
+      final expeditionResponse = await remoteDataSource.endExpedition(
+        expeditionId: expeditionId,
+      );
+
+      return right(expeditionResponse);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
   }
 }

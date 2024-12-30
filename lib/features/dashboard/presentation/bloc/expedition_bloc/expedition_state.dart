@@ -33,6 +33,12 @@ final class ExpeditionStoreSuccess extends ExpeditionState {
   const ExpeditionStoreSuccess(this.message);
 }
 
+final class ExpeditionEndSuccess extends ExpeditionState {
+  final String message;
+
+  const ExpeditionEndSuccess(this.message);
+}
+
 final class ExpeditionFailure extends ExpeditionState {
   final String error;
 

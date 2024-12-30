@@ -6,6 +6,8 @@ class ExpeditionModel extends ExpeditionRecord {
     required super.id,
     required super.status,
     required super.expeditionIdentifier,
+    required super.deviceUptime,
+    required super.maxPressure,
     required super.createdAt,
     required super.updatedAt,
     required super.imageList,
@@ -16,6 +18,10 @@ class ExpeditionModel extends ExpeditionRecord {
       id: json['id'] as int,
       status: stringToExpeditionStatus(json['status'] as String),
       expeditionIdentifier: json["expedition_identifier"] as String,
+      deviceUptime:
+          json["device_uptime"] != null ? json['device_uptime'] as String : "",
+      maxPressure:
+          json["max_pressure"] != null ? json['max_pressure'] as String : "",
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
       imageList: json['image'] != null

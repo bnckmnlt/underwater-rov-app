@@ -226,53 +226,100 @@ class _DeviceSummaryState extends State<DeviceSummary> {
             ),
             actions: [
               _expeditionIsActive
-                  ? Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                      child: TextButton.icon(
-                        onPressed: () {
-                          showDialog(
+                  ? BlocConsumer<ExpeditionBloc, ExpeditionState>(
+                      listener: (context, state) {
+                        if (state is ExpeditionFailure) {
+                          toastification.show(
                             context: context,
-                            builder: (BuildContext context) {
-                              return GeneralDialog(
-                                title: 'Close Expedition',
-                                description:
-                                    'Would you like to finalize the current expedition?',
-                                confirmButtonLabel: 'Close Expedition',
-                                approvedFunction: () {
-                                  Navigator.pop(context);
+                            type: ToastificationType.error,
+                            style: ToastificationStyle.flat,
+                            title: Text("Something went wrong"),
+                            description: Text(state.error),
+                            alignment: Alignment.topRight,
+                            autoCloseDuration: Duration(seconds: 4),
+                            animationBuilder: (
+                              context,
+                              animation,
+                              alignment,
+                              child,
+                            ) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                            borderSide: BorderSide(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outline
+                                  .withValues(alpha: 0.5),
+                              width: 1,
+                            ),
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainer
+                                .withAlpha(248),
+                            borderRadius: BorderRadius.circular(4.0),
+                            showProgressBar: true,
+                            dragToClose: true,
+                          );
+                        } else if (state is ExpeditionEndSuccess) {
+                          Navigator.pop(context);
 
-                                  _mqttService.publish(
-                                    "rov/expedition/status",
-                                    jsonEncode({"isActive": false}),
-                                    qos: MqttQos.exactlyOnce,
-                                    retain: true,
-                                  );
+                          _mqttService.publish(
+                            "rov/expedition/status",
+                            jsonEncode({"isActive": false}),
+                            qos: MqttQos.exactlyOnce,
+                            retain: true,
+                          );
 
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          EndExpeditionSummary(
-                                        expeditionId: _currentExpedition,
-                                      ),
-                                    ),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EndExpeditionSummary(
+                                expeditionId: _currentExpedition,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      builder: (context, state) {
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                          child: TextButton.icon(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return GeneralDialog(
+                                    title: 'Close Expedition',
+                                    description:
+                                        'Would you like to finalize the current expedition?',
+                                    confirmButtonLabel: 'Close Expedition',
+                                    approvedFunction: () {
+                                      context.read<ExpeditionBloc>().add(
+                                            ExpeditionEndExpedition(
+                                              _currentExpedition,
+                                            ),
+                                          );
+                                    },
                                   );
                                 },
                               );
                             },
-                          );
-                        },
-                        style: const ButtonStyle(
-                          foregroundColor:
-                              WidgetStatePropertyAll(Colors.redAccent),
-                          splashFactory: NoSplash.splashFactory,
-                        ),
-                        label: const Text("End Expedition"),
-                        icon: const Icon(
-                          FluentIcons.flag_off_24_regular,
-                          color: Colors.redAccent,
-                        ),
-                      ),
+                            style: const ButtonStyle(
+                              foregroundColor:
+                                  WidgetStatePropertyAll(Colors.redAccent),
+                              splashFactory: NoSplash.splashFactory,
+                            ),
+                            label: const Text("End Expedition"),
+                            icon: const Icon(
+                              FluentIcons.flag_off_24_regular,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                        );
+                      },
                     )
                   : const Spacer(),
             ],
@@ -323,7 +370,7 @@ class _DeviceSummaryState extends State<DeviceSummary> {
 
                     /** Device Information Card **/
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 56, 16, 56),
+                      padding: const EdgeInsets.fromLTRB(16, 64, 16, 56),
                       child: Column(
                         children: [
                           BlocBuilder<ExpeditionBloc, ExpeditionState>(
@@ -571,257 +618,336 @@ Widget _mainButtonComponent(
 ) {
   final formKey = GlobalKey<FormState>();
 
-  return Padding(
-    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Tooltip(
-            message: !deviceisActive
-                ? 'Device is currently inactive'
-                : 'Ready for expedition',
-            child: ElevatedButton(
-              onPressed: !deviceisActive
-                  ? null
-                  : () {
-                      if (expeditionActive && deviceisActive) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (builder) => DeviceStream(
-                              mqttService: mqttService,
-                              deviceInfo: deviceInfo,
-                            ),
-                          ),
-                        );
-                        return;
-                      } else {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return GeneralDialog(
-                              title: 'Add Expedition Identifier',
-                              description: 'Enter a unique expedition name',
-                              confirmButtonLabel: 'Continue',
-                              widget: Form(
-                                key: formKey,
-                                child: TextFormField(
-                                  controller: expeditionIdentifierController,
-                                  validator: (value) {
-                                    if (value!.isEmpty || value.length <= 8) {
-                                      return "Expedition name is invalid";
-                                    }
-                                    return null;
-                                  },
+  return BlocConsumer<ExpeditionBloc, ExpeditionState>(
+    listener: (context, state) {
+      if (state is ExpeditionFailure) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          title: Text("Something went wrong"),
+          description: Text(state.error),
+          alignment: Alignment.topRight,
+          autoCloseDuration: Duration(seconds: 4),
+          animationBuilder: (
+            context,
+            animation,
+            alignment,
+            child,
+          ) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+            width: 1,
+          ),
+          backgroundColor:
+              Theme.of(context).colorScheme.surfaceContainer.withAlpha(248),
+          borderRadius: BorderRadius.circular(4.0),
+          showProgressBar: true,
+          dragToClose: true,
+        );
+      } else if (state is ExpeditionStoreSuccess) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          title: Text("${state.message} has started"),
+          description: Text("Expedition has started successfully"),
+          alignment: Alignment.topRight,
+          autoCloseDuration: Duration(seconds: 4),
+          animationBuilder: (
+            context,
+            animation,
+            alignment,
+            child,
+          ) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+            width: 1,
+          ),
+          backgroundColor:
+              Theme.of(context).colorScheme.surfaceContainer.withAlpha(248),
+          borderRadius: BorderRadius.circular(4.0),
+          showProgressBar: true,
+          dragToClose: true,
+        );
+
+        mqttService.publish(
+          "rov/expedition/status",
+          jsonEncode({"isActive": true}),
+          qos: MqttQos.exactlyOnce,
+          retain: true,
+        );
+
+        mqttService.publish(
+          "rov/expedition",
+          (expeditionId + 1).toString(),
+          qos: MqttQos.exactlyOnce,
+          retain: true,
+        );
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (builder) => DeviceStream(
+              mqttService: mqttService,
+              deviceInfo: deviceInfo,
+            ),
+          ),
+        );
+      }
+    },
+    builder: (context, state) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Tooltip(
+                message: !deviceisActive
+                    ? 'Device is currently inactive'
+                    : 'Ready for expedition',
+                child: ElevatedButton(
+                  onPressed: !deviceisActive
+                      ? null
+                      : () {
+                          if (expeditionActive && deviceisActive) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (builder) => DeviceStream(
+                                  mqttService: mqttService,
+                                  deviceInfo: deviceInfo,
                                 ),
                               ),
-                              approvedFunction: () {
-                                if (formKey.currentState!.validate()) {
-                                  Navigator.pop(context);
+                            );
+                            return;
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return GeneralDialog(
+                                  title: 'Add Expedition Identifier',
+                                  description: 'Enter a unique expedition name',
+                                  confirmButtonLabel: 'Continue',
+                                  widget: Form(
+                                    key: formKey,
+                                    child: TextFormField(
+                                      controller:
+                                          expeditionIdentifierController,
+                                      validator: (value) {
+                                        if (value!.isEmpty ||
+                                            value.length <= 8) {
+                                          return "Expedition name is invalid";
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                  approvedFunction: () {
+                                    if (formKey.currentState!.validate()) {
+                                      Navigator.pop(context);
 
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return GeneralDialog(
-                                        title:
-                                            'Start ${expeditionIdentifierController.text}?',
-                                        description:
-                                            'Do you want to start an expedition with this ROV?',
-                                        confirmButtonLabel: 'Start Expedition',
-                                        approvedFunction: () {
-                                          Navigator.pop(context);
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return GeneralDialog(
+                                            title:
+                                                'Start ${expeditionIdentifierController.text}?',
+                                            description:
+                                                'Do you want to start an expedition with this ROV?',
+                                            confirmButtonLabel:
+                                                'Start Expedition',
+                                            approvedFunction: () {
+                                              Navigator.pop(context);
 
-                                          mqttService.publish(
-                                            "rov/expedition/status",
-                                            jsonEncode({"isActive": true}),
-                                            qos: MqttQos.exactlyOnce,
-                                            retain: true,
-                                          );
-
-                                          mqttService.publish(
-                                            "rov/expedition",
-                                            (expeditionId + 1).toString(),
-                                            qos: MqttQos.exactlyOnce,
-                                            retain: true,
-                                          );
-
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (builder) =>
-                                                  DeviceStream(
-                                                mqttService: mqttService,
-                                                deviceInfo: deviceInfo,
-                                              ),
-                                            ),
+                                              context
+                                                  .read<ExpeditionBloc>()
+                                                  .add(
+                                                    ExpeditionStoreExpedition(
+                                                      expeditionIdentifierController
+                                                          .text
+                                                          .trim(),
+                                                    ),
+                                                  );
+                                            },
                                           );
                                         },
                                       );
-                                    },
-                                  );
-                                }
+                                    }
+                                  },
+                                );
                               },
                             );
-                          },
-                        );
-                      }
-                    },
-              style: _mainButtonStyle(
-                context,
-                false,
-                10,
-                32,
-                !deviceisActive
-                    ? Colors.blueGrey.shade100.withAlpha(16)
-                    : Colors.blue.withAlpha(32),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    "Underwater ROV Bot",
-                    style: TextStyle(
-                      fontFamily: "Satoshi",
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.025,
-                    ),
+                          }
+                        },
+                  style: _mainButtonStyle(
+                    context,
+                    false,
+                    10,
+                    32,
+                    !deviceisActive
+                        ? Colors.blueGrey.shade100.withAlpha(16)
+                        : Colors.blue.withAlpha(32),
                   ),
-                  Text(
-                    deviceisActive
-                        ? expeditionActive
-                            ? "Continue your expedition"
-                            : "Start expedition"
-                        : "Device not available",
-                    style: TextStyle(
-                      fontFamily: "Satoshi",
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.75),
-                    ),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Underwater ROV Bot",
+                        style: TextStyle(
+                          fontFamily: "Satoshi",
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.025,
+                        ),
+                      ),
+                      Text(
+                        deviceisActive
+                            ? expeditionActive
+                                ? "Continue your expedition"
+                                : "Start expedition"
+                            : "Device not available",
+                        style: TextStyle(
+                          fontFamily: "Satoshi",
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.75),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Tooltip(
-          message: 'Board Status',
-          child: ElevatedButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return GeneralDialog(
-                    title: 'Connection Status',
-                    withTitle: false,
-                    isDismissable: true,
-                    description:
-                        'These are the connection statuses of the system:',
-                    confirmButtonLabel: 'Refresh',
-                    approvedFunction: _refreshConnectionStatus,
-                    widget: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
-                      child: Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+            const SizedBox(width: 12),
+            Tooltip(
+              message: 'Board Status',
+              child: ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return GeneralDialog(
+                        title: 'Connection Status',
+                        withTitle: false,
+                        isDismissable: true,
+                        description:
+                            'These are the connection statuses of the system:',
+                        confirmButtonLabel: 'Refresh',
+                        approvedFunction: _refreshConnectionStatus,
+                        widget: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
+                          child: Column(
                             children: [
-                              Text(
-                                'Device Status',
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.75),
-                                ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Device Status',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.75),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    deviceisActive ? 'Active' : 'Inactive',
+                                    style: TextStyle(
+                                      color: deviceisActive
+                                          ? Colors.greenAccent
+                                          : Colors.redAccent,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  )
+                                ],
                               ),
-                              const Spacer(),
-                              Text(
-                                deviceisActive ? 'Active' : 'Inactive',
-                                style: TextStyle(
-                                  color: deviceisActive
-                                      ? Colors.greenAccent
-                                      : Colors.redAccent,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              const SizedBox(height: 8),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Expedition Status',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.75),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    expeditionActive ? 'Active' : 'Inactive',
+                                    style: TextStyle(
+                                      color: expeditionActive
+                                          ? Colors.greenAccent
+                                          : Colors.redAccent,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  )
+                                ],
                               )
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Expedition Status',
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.75),
-                                ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                expeditionActive ? 'Active' : 'Inactive',
-                                style: TextStyle(
-                                  color: expeditionActive
-                                      ? Colors.greenAccent
-                                      : Colors.redAccent,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   );
                 },
-              );
-            },
-            style: _mainButtonStyle(
-              context,
-              true,
-              24,
-              24,
-              !deviceisActive || !expeditionActive
-                  ? Colors.blueGrey.shade100.withAlpha(16)
-                  : Colors.blue.withAlpha(32),
-            ),
-            child: Center(
-              child: Column(
-                children: [
-                  Container(
-                    height: 16,
-                    width: 16,
-                    decoration: BoxDecoration(
-                      color: expeditionActive
-                          ? Colors.greenAccent
-                          : Colors.redAccent,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+                style: _mainButtonStyle(
+                  context,
+                  true,
+                  24,
+                  24,
+                  !deviceisActive || !expeditionActive
+                      ? Colors.blueGrey.shade100.withAlpha(16)
+                      : Colors.blue.withAlpha(32),
+                ),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 16,
+                        width: 16,
+                        decoration: BoxDecoration(
+                          color: expeditionActive
+                              ? Colors.greenAccent
+                              : Colors.redAccent,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        expeditionActive ? "EM" : "SM",
+                        style: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.5),
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    expeditionActive ? "EM" : "SM",
-                    style: TextStyle(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.5),
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
-      ],
-    ),
+      );
+    },
   );
 }

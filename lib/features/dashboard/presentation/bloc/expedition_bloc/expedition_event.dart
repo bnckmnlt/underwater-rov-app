@@ -28,3 +28,11 @@ final class ExpeditionStoreExpedition extends ExpeditionEvent {
     this.expeditionIdentifier,
   );
 }
+
+final class ExpeditionEndExpedition extends ExpeditionEvent {
+  final int expeditionId;
+
+  ExpeditionEndExpedition(
+    this.expeditionId,
+  );
+}

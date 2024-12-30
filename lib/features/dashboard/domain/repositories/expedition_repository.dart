@@ -17,4 +17,8 @@ abstract interface class ExpeditionRepository {
   Future<Either<Failure, String>> storeExpedition({
     required String expeditionIdentifier,
   });
+
+  Future<Either<Failure, String>> endExpedition({
+    required int expeditionId,
+  });
 }

@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:embedded_rov_v2/core/error/exception.dart';
 import 'package:embedded_rov_v2/features/dashboard/data/models/expedition_model.dart';
 import 'package:embedded_rov_v2/features/dashboard/data/models/image_model.dart';
+import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class ExpeditionRemoteDataSource {
@@ -16,6 +19,10 @@ abstract interface class ExpeditionRemoteDataSource {
 
   Future<String> storeExpedition({
     required String expeditionIdentifier,
+  });
+
+  Future<String> endExpedition({
+    required int expeditionId,
   });
 }
 
@@ -86,8 +93,54 @@ class ExpeditionRemoteDataSourceImpl implements ExpeditionRemoteDataSource {
   }
 
   @override
-  Future<String> storeExpedition({required String expeditionIdentifier}) {
-    // TODO: implement storeExpedition
-    throw UnimplementedError();
+  Future<String> storeExpedition({
+    required String expeditionIdentifier,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse("https://thinkio.me/expedition"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'expeditionIdentifier': expeditionIdentifier,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)["expeditionIdentifier"].toString();
+      } else {
+        throw ServerException(jsonDecode(response.body)["message"].toString());
+      }
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<String> endExpedition({
+    required int expeditionId,
+  }) async {
+    try {
+      final response = await http.patch(
+        Uri.parse("https://thinkio.me/expedition/${expeditionId.toString()}"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'status': 'completed',
+        }),
+      );
+
+      print(response);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)["expeditionIdentifier"].toString();
+      } else {
+        throw ServerException(jsonDecode(response.body)["message"].toString());
+      }
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
   }
 }

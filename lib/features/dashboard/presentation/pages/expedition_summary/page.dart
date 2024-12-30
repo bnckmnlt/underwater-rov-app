@@ -190,7 +190,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                     return Container(
                       height: deviceHeight,
                       width: deviceWidth,
-                      padding: const EdgeInsets.fromLTRB(0, 38, 0, 24),
+                      padding: const EdgeInsets.fromLTRB(0, 38, 0, 32),
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,9 +442,9 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                                 ),
                                               ),
                                               const SizedBox(height: 2.0),
-                                              const Text(
-                                                "6 hr 18 min",
-                                                style: TextStyle(
+                                              Text(
+                                                state.expedition.deviceUptime,
+                                                style: const TextStyle(
                                                   fontSize: 24,
                                                   fontWeight: FontWeight.w600,
                                                   letterSpacing: 0.025,
@@ -466,10 +466,10 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                                                 ),
                                               ),
                                               const SizedBox(height: 2.0),
-                                              const Text(
-                                                "6 hr 18 min",
+                                              Text(
+                                                state.expedition.maxPressure,
                                                 textAlign: TextAlign.end,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontSize: 24,
                                                   fontWeight: FontWeight.w600,
                                                   letterSpacing: 0.025,
@@ -621,6 +621,7 @@ class _ExpeditionSummaryState extends State<ExpeditionSummary> {
                       ),
                     );
                   }
+
                   if (state is ExpeditionFailure) {
                     return ErrorDisplay(
                         errorMessage:

@@ -3,6 +3,7 @@ import 'package:embedded_rov_v2/core/secrets/app_secrets.dart';
 import 'package:embedded_rov_v2/features/dashboard/data/datasources/expedition_remote_datasource.dart';
 import 'package:embedded_rov_v2/features/dashboard/data/repositories/expedition_repository_impl.dart';
 import 'package:embedded_rov_v2/features/dashboard/domain/repositories/expedition_repository.dart';
+import 'package:embedded_rov_v2/features/dashboard/domain/usecases/end_expedition.dart';
 import 'package:embedded_rov_v2/features/dashboard/domain/usecases/fetch_all_expedition.dart';
 import 'package:embedded_rov_v2/features/dashboard/domain/usecases/fetch_expedition_images.dart';
 import 'package:embedded_rov_v2/features/dashboard/domain/usecases/fetch_single_expedition.dart';

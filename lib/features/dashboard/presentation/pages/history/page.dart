@@ -1,4 +1,5 @@
 import 'package:embedded_rov_v2/core/utils/error_display.dart';
+import 'package:embedded_rov_v2/core/utils/no_data_display.dart';
 import 'package:embedded_rov_v2/features/dashboard/presentation/bloc/expedition_bloc/expedition_bloc.dart';
 import 'package:embedded_rov_v2/features/dashboard/presentation/pages/expedition_summary/page.dart';
 import 'package:embedded_rov_v2/features/dashboard/presentation/widgets/AppBackground.dart';
@@ -135,36 +136,45 @@ class _HistoryPageState extends State<HistoryPage> {
                         if (state is ExpeditionDisplaySuccess) {
                           final expedition = state.expeditions;
 
-                          return Column(
-                            children: expedition
-                                .map(
-                                  (expedition) => GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              ExpeditionSummary(
-                                                  expeditionId: expedition.id),
+                          return state.expeditions.isNotEmpty
+                              ? Column(
+                                  children: expedition
+                                      .map(
+                                        (expedition) => GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ExpeditionSummary(
+                                                        expeditionId:
+                                                            expedition.id),
+                                              ),
+                                            );
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8.0),
+                                            child: ExpeditionTile(
+                                              expeditionId: expedition.id,
+                                              status: expedition.status,
+                                              identifier: expedition
+                                                  .expeditionIdentifier,
+                                              createdAt: expedition.createdAt,
+                                              updatedAt: expedition.updatedAt,
+                                            ),
+                                          ),
                                         ),
-                                      );
-                                    },
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 8.0),
-                                      child: ExpeditionTile(
-                                        expeditionId: expedition.id,
-                                        status: expedition.status,
-                                        identifier:
-                                            expedition.expeditionIdentifier,
-                                        createdAt: expedition.createdAt,
-                                        updatedAt: expedition.updatedAt,
-                                      ),
-                                    ),
-                                  ),
+                                      )
+                                      .toList(),
                                 )
-                                .toList(),
-                          );
+                              : SizedBox(
+                                  height: deviceHeight * 0.5,
+                                  child: NoDataDisplay(
+                                      deviceWidth: deviceWidth,
+                                      message:
+                                          "No expeditions found\nStart one!"),
+                                );
                         }
 
                         if (state is ExpeditionFailure) {
